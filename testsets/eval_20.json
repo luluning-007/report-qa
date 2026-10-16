@@ -1,0 +1,22 @@
+[
+  {"id": 1,  "type": "A", "question": "2025年营业收入是多少？", "must_reject": false},
+  {"id": 2,  "type": "A", "question": "2025年归属于母公司股东的净利润是多少？", "must_reject": false},
+  {"id": 3,  "type": "A", "question": "2025年经营活动产生的现金流量净额是多少？", "must_reject": false},
+  {"id": 4,  "type": "A", "question": "公司董事长是谁？", "must_reject": false},
+  {"id": 5,  "type": "A", "question": "报告期末员工总数是多少？", "must_reject": false},
+  {"id": 6,  "type": "B", "question": "2025年营业收入相比2024年增长了多少？", "must_reject": false},
+  {"id": 7,  "type": "B", "question": "2025年毛利率是多少？", "must_reject": false},
+  {"id": 8,  "type": "B", "question": "2025年研发投入占营业收入的比例是多少？", "must_reject": false},
+  {"id": 9,  "type": "B", "question": "2025年营业成本是多少？", "must_reject": false},
+  {"id": 10, "type": "B", "question": "2025年主营业务收入是多少？", "must_reject": false},
+  {"id": 11, "type": "C", "question": "公司营业收入增长的主要原因是什么？", "must_reject": false},
+  {"id": 12, "type": "C", "question": "公司的主要风险因素有哪些？", "must_reject": false},
+  {"id": 13, "type": "C", "question": "公司的研发投入情况如何？", "must_reject": false},
+  {"id": 14, "type": "C", "question": "公司有哪些主要业务板块？", "must_reject": false},
+  {"id": 15, "type": "D", "question": "公司2026年的营业收入预测是多少？", "must_reject": true},
+  {"id": 16, "type": "D", "question": "公司股价下个月会涨吗？", "must_reject": true},
+  {"id": 17, "type": "D", "question": "公司主要竞争对手的内部成本结构是怎样的？", "must_reject": true},
+  {"id": 18, "type": "D", "question": "公司明年计划裁掉多少员工？", "must_reject": true},
+  {"id": 19, "type": "E", "question": "毛利率是多少？请说明是哪个口径。", "must_reject": false},
+  {"id": 20, "type": "E", "question": "营业收入是多少？是合并报表还是母公司报表？", "must_reject": false}
+]
