@@ -1,14 +1,35 @@
 """
 app.py —— 年报问答台（网页界面）
 
-运行方式：
+本地运行：
     streamlit run app.py
 
-浏览器会自动打开，一般是 http://localhost:8501
+云端部署（Streamlit Community Cloud）：
+    API Key 从 Secrets 读取，在网页后台配置
 """
+
+import os
 
 import streamlit as st
 
+# ============================================================
+# 【重要】密钥读取 —— 必须在导入 answer 之前执行
+#
+# 原因：answer.py 在被 import 的那一刻就会执行
+#           API_KEY = os.environ.get("DEEPSEEK_API_KEY")
+#       如果这时环境变量还没设好，API_KEY 就会是 None。
+#
+#   本地开发：用环境变量（$env:DEEPSEEK_API_KEY）
+#   云端部署：用 Streamlit Secrets（网页后台配置）
+# ============================================================
+try:
+    if "DEEPSEEK_API_KEY" in st.secrets:
+        os.environ["DEEPSEEK_API_KEY"] = st.secrets["DEEPSEEK_API_KEY"]
+except Exception:
+    # 本地没有 secrets.toml 时会抛异常，忽略即可
+    pass
+
+# 密钥就位后，再导入业务模块
 from answer import answer_question
 from retrieve import build_index, load_chunks
 
@@ -23,6 +44,17 @@ st.set_page_config(
 
 st.title("📊 年报问答台")
 st.caption("从上市公司年报里找答案 —— 每条结论都能追溯到原文页码")
+
+# ============================================================
+# 成本防护：限制单次会话的提问次数
+#
+# 为什么需要：部署后是公开链接，任何人都能用，
+#            会消耗你自己的 API 余额。这是一个基本的用量闸门。
+# ============================================================
+MAX_QUERIES_PER_SESSION = 20
+
+if "query_count" not in st.session_state:
+    st.session_state.query_count = 0
 
 
 # ============================================================
@@ -70,6 +102,11 @@ with st.sidebar:
     st.divider()
     st.caption("⚠️ 当前仅支持文字版 PDF，扫描件需 OCR")
 
+    st.divider()
+    remaining = MAX_QUERIES_PER_SESSION - st.session_state.query_count
+    st.caption(f"💬 本次会话剩余提问：**{remaining}** 次")
+    st.caption("本服务为个人学习项目，请勿滥用")
+
 
 # ============================================================
 # 主区域：提问
@@ -101,6 +138,16 @@ for i, ex in enumerate(examples):
 # 回答区
 # ============================================================
 if ask and question:
+    # ---------- 成本防护：检查本次会话的提问次数 ----------
+    if st.session_state.query_count >= MAX_QUERIES_PER_SESSION:
+        st.error(
+            f"⚠️ 本次会话提问已达上限（{MAX_QUERIES_PER_SESSION} 次）。\n\n"
+            "这是个人学习项目，为避免 API 余额被滥用，设置了会话上限。刷新页面可重置。"
+        )
+        st.stop()
+
+    st.session_state.query_count += 1
+
     with st.spinner("正在检索资料并询问 AI..."):
         result = answer_question(question, chunks, bm25, top_k=5)
 
@@ -112,7 +159,6 @@ if ask and question:
         st.caption("系统不会编造答案。请换个问法，或确认该信息是否在年报中披露。")
 
     # ---------- 情况 2：有答案 ----------
-       # ---------- 情况 2：有答案 ----------
     else:
         st.subheader("结论")
         st.write(result.get("answer", "（无）"))
